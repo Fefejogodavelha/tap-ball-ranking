@@ -49,20 +49,19 @@ jobs:
             git reset --hard origin/main --quiet
             git pull origin main --quiet || true
 
-            NAME_CLEAN="$(node -e 'process.stdout.write(process.argv[1].trim().slice(0,16).replace(/[\\r\\n]/g," "))' "$NAME")"
-            if [ -z "$NAME_CLEAN" ]; then
-              echo "::error::Nome vazio apos limpeza"
+            if [ -z "$NAME" ]; then
+              echo "::error::Nome vazio"
               return 2
             fi
 
-            node scripts/apply-score.js "$NAME_CLEAN" "$SCORE_INPUT" "$TS"
+            node scripts/apply-score.js "$NAME" "$SCORE_INPUT" "$TS"
 
             git add ranking.json
             if git diff --cached --quiet; then
               echo "Nenhuma alteracao necessaria (melhor pontuacao ja registrada)"
               return 0
             fi
-            git -c user.name='tap-ball-ranker[bot]' -c user.email='actions@users.noreply.github.com' commit -m "score($NAME_CLEAN): $SCORE_INPUT" --quiet
+            git -c user.name='tap-ball-ranker[bot]' -c user.email='actions@users.noreply.github.com' commit -m "score($NAME): $SCORE_INPUT" --quiet
             if git push origin HEAD:main --quiet; then
               return 0
             else
